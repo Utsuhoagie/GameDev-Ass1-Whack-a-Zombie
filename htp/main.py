@@ -1,3 +1,4 @@
+from managers.MouseInput import MouseInput
 from objects.Hole import Hole
 import sys
 sys.path.append("/")
@@ -5,24 +6,7 @@ import pygame
 from pygame.locals import *
 from managers.ScoreController import ScoreController
 from objects.Zombie import Zombie
-
-# ----- Window --------------------------------------
-WIDTH, HEIGHT = 600,600
-
-# ----- Colors --------------------------------------
-BLACK = (0,0,0)
-GRAY = (100,100,100)
-WHITE = (255,255,255)
-RED = (255,0,0)
-GREEN = (0,255,0)
-BLUE = (0,0,255)
-YELLOW = (252,227,0)
-
-# ----- Gameplay ------------------------------------
-FPS = 60
-
-WIN_CONDITION = 5
-WIN = pygame.USEREVENT + 1
+from constants.constant import *
 
 class App:
     def __init__(self, width = 640, height = 400):
@@ -47,6 +31,7 @@ class App:
 
         # flag
         self._winFlag = False
+        self.isHit = False
 
         self.FONT = None
         self.WIN_FONT = None
@@ -92,22 +77,40 @@ class App:
         self.FONT = pygame.font.SysFont("arial",15)
         self.WIN_FONT = pygame.font.SysFont("comicsans",50)
 
-        self._scoreManager = ScoreController(self.screen,0, WIN_CONDITION, self.FONT)
+        self._scoreManager = ScoreController(self,0, WIN_CONDITION, self.FONT)
 
         pygame.display.set_icon(self._assets["logo"])
         pygame.display.set_caption("Zombie Shooter")
 
-        self._holeList.append(Hole(self.screen, 0, 100, self._assets["hole"], 0, 0))
-        self._zombieList.append(Zombie(self.screen, 60, 110, self._assets['zombie'], 0, 0))
+        self._holeList.append(Hole(self, 0, 100, self._assets["hole"], 212, 152))
+        self._zombieList.append(Zombie(self, 60, 110, self._assets['zombie'], 54, 101))
 
     def _handleEvent(self, event):
         if event.type == pygame.QUIT:
             self._running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            MouseInput.setDown()
+        elif event.type == pygame.MOUSEBUTTONUP:
+            MouseInput.setUp()
+        elif event.type == INCREASESCORE:
+            self._scoreManager.incrScore()
+        elif event.type == INCREASEMISSSCORE:
+            self._scoreManager.incrMiss()
     def _update(self, delta):
         self._scoreManager.update()
 
         [hole.update(delta) for hole in self._holeList]
         [zombie.update(delta) for zombie in self._zombieList]
+
+        # handle input
+        if not self.isHit and MouseInput.isClick():
+            pygame.event.post(pygame.event.Event(INCREASEMISSSCORE))
+
+        # reset global variable
+        self.isHit = False
+
+        # for system
+        MouseInput.update()
         
     def _render(self):
         # erase the screen

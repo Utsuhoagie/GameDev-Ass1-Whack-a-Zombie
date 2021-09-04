@@ -1,14 +1,4 @@
-# ----- Window --------------------------------------
-WIDTH, HEIGHT = 600,600
-
-# ----- Colors --------------------------------------
-BLACK = (0,0,0)
-GRAY = (100,100,100)
-WHITE = (255,255,255)
-RED = (255,0,0)
-GREEN = (0,255,0)
-BLUE = (0,0,255)
-YELLOW = (252,227,0)
+from constants.constant import *
 
 class ScoreController:
     def __init__(self, screen, score, win, font):
@@ -46,14 +36,14 @@ class ScoreController:
         return self.score >= self.win
 
     def update(self):
-        self.scoreText = "You score: " + str(self.score)
-        self.missText = "You missed: " + str(self.miss)
+        self._scoreText = "You score: " + str(self.score)
+        self._missText = "You missed: " + str(self.miss)
 
     def draw(self):
         str = self._font.render(self._scoreText, 1, BLACK)
 
-        self._screen.blit(str, (WIDTH//2 - str.get_width()//2, 30))
+        self._screen.screen.blit(str, (WIDTH//2 - str.get_width()//2, 30))
 
         str = self._font.render(self._missText, 1, BLACK)
 
-        self._screen.blit(str, (WIDTH//2 - str.get_width()//2, 70))
+        self._screen.screen.blit(str, (WIDTH//2 - str.get_width()//2, 70))
