@@ -23,6 +23,11 @@ YELLOW = (252,227,0)
 
 HAMMER_W, HAMMER_H = 32,32
 
+# ----- Sounds --------------------------------------
+
+SWING_SFX = pg.mixer.Sound(os.path.join("Assets/Sounds","swing.ogg"))
+HIT_SFX = pg.mixer.Sound(os.path.join("Assets/Sounds","bonk.ogg"))
+
 
 # ----- Fonts ---------------------------------------
 
@@ -34,6 +39,9 @@ FPS = 60
 
 WIN_CONDITION = 5
 WIN = pg.USEREVENT + 1
+
+
+
 
 # ----- Classes -------------------------------------
 
@@ -180,6 +188,9 @@ def main():
                 hammer.setTimer(Timer(20))
                 hammer.setPos(pg.mouse.get_pos())   # this is CENTER of hammer
 
+                # play swing SFX
+                SWING_SFX.play()
+
                 # check if hit or miss
                 if (
                     (pg.mouse.get_pos()[0] >= rect.x)
@@ -187,6 +198,7 @@ def main():
                 and (pg.mouse.get_pos()[1] >= rect.y)
                 and (pg.mouse.get_pos()[1] <= rect.y + rect.width)
                     ):
+                    HIT_SFX.play()
                     scoreController.incrScore()
                     scoreText = "Your score: " + scoreController.toString("score")
                 else:
