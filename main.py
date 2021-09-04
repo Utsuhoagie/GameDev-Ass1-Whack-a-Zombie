@@ -19,6 +19,10 @@ GREEN = (0,255,0)
 BLUE = (0,0,255)
 YELLOW = (252,227,0)
 
+# ----- Sprites -------------------------------------
+
+HAMMER_W, HAMMER_H = 32,32
+
 
 # ----- Fonts ---------------------------------------
 
@@ -34,26 +38,39 @@ WIN = pg.USEREVENT + 1
 # ----- Classes -------------------------------------
 
 class Timer:
-    def __init__(self, timer, active):
-        self.timer = timer
-        self.active = active
+    def __init__(self, time: int):
+        self.time = time
     
     def decreaseBy(self,decr):
-        self.timer -= decr
+        self.time -= decr
     
-    def setTo(self,timer,active):
-        self.timer = timer
-        self.active = active
+    def setTo(self, time: int):
+        self.time = time
 
-    def getTimer(self):
+    def getTime(self) -> int:
+        return self.time
+
+class Hammer:
+    def __init__(self, timer: Timer = None, position: tuple = None):
+        self.timer = timer
+        self.position = position
+
+    def setTimer(self, timer: Timer):
+        self.timer = timer
+
+    def setPos(self, position: tuple):
+        self.position = position
+
+    def getTimer(self) -> Timer:
         return self.timer
 
-    def isActive(self):
-        return self.active
+    def getPos(self) -> tuple:
+        return self.position
+    
 
 
 class ScoreController:
-    def __init__(self, score, win):
+    def __init__(self, score: int, win: int):
         self.score = score
         self.miss = 0
         self.win = win
@@ -64,13 +81,13 @@ class ScoreController:
     def getMiss(self) -> int:
         return self.miss
 
-    def toString(self,type) -> str:
+    def toString(self, type: str) -> str:
         if type == "score":
             return str(self.score)
         elif type == "miss":
             return str(self.miss)
 
-    def setScore(self,score):
+    def setScore(self, score: int):
         self.score = score
 
     def incrScore(self):
@@ -89,24 +106,37 @@ class ScoreController:
 
 # ---------- Draw -----------------
 
-def draw_screen(rectList, textList, scoreController: ScoreController):
+def draw_screen(rectList, textList, scoreController: ScoreController, hammer: Hammer):
+    # draw background
     SCREEN.fill(BLACK)
 
-    [pg.draw.rect(SCREEN,GREEN,rect) for rect in rectList]
+    # draw objects to click on
+    [pg.draw.rect(SCREEN,GREEN,rect) for rect in rectList]  # 
 
-
+    # spacing between lines of text
     text_y_displace = 0
 
+    # draw text
     for text in textList:
         str = FONT.render(text,1,WHITE)     # this is a surface
-        SCREEN.blit(str,(WIDTH//2 - str.get_width()//2, 30 + text_y_displace))
-        text_y_displace += 40
+        SCREEN.blit(str,(WIDTH//2 - str.get_width()//2, 15 + text_y_displace))
+        text_y_displace += 30
 
+    # clear list of text
     textList.clear()
 
+    # draw hammer if clicked, automatically disappears after 20 frames
+    if hammer.getTimer() != None and hammer.getTimer().getTime() != 0:
+        hammerRect = pg.Rect(hammer.getPos()[0] - HAMMER_W//2, hammer.getPos()[1] - HAMMER_H//2, 
+                            HAMMER_W, HAMMER_H)
+        pg.draw.rect(SCREEN,YELLOW,hammerRect)
+        hammer.getTimer().decreaseBy(1)
+
+    # WIN event
     if scoreController.isWon():
         pg.event.post(pg.event.Event(WIN))
 
+    # update display
     pg.display.update()
 
 
@@ -117,9 +147,14 @@ def draw_winText():
     pg.display.update()
 
 # ----- Main ----------------------------------------
+
 def main():
+    pg.event.clear()    # clear events from last game
+
     run = True
     clock = pg.time.Clock()
+
+    hammer = Hammer()
 
     rectList = []
     textList = []
@@ -130,6 +165,7 @@ def main():
     rect = pg.Rect(50,50,100,100)
     rectList.append(rect)
 
+    goalText = "Goal: " + str(WIN_CONDITION)
     scoreText = "Your score: 0"
     missText = "You missed: 0"
 
@@ -139,8 +175,12 @@ def main():
             if event.type == pg.QUIT:
                 run = False
                 break
-            if event.type == pg.MOUSEBUTTONDOWN and not winFlag:
-                print("Clicked once, winFlag = " + str(winFlag))
+            if event.type == pg.MOUSEBUTTONDOWN and winFlag == False:
+                # set timer and position of hammer to draw
+                hammer.setTimer(Timer(20))
+                hammer.setPos(pg.mouse.get_pos())   # this is CENTER of hammer
+
+                # check if hit or miss
                 if (
                     (pg.mouse.get_pos()[0] >= rect.x)
                 and (pg.mouse.get_pos()[0] <= rect.x + rect.width)
@@ -152,21 +192,24 @@ def main():
                 else:
                     scoreController.incrMiss()
                     missText = "You missed: " + scoreController.toString("miss")
+
             if event.type == WIN:
                 run = False
                 winFlag = True
-                print("Won! winFlag = " + str(winFlag))
                 break
 
         if winFlag:
             draw_winText()
-            pg.time.delay(2000)
+            pg.time.delay(2000)     # wait 2s
             break
 
+        textList.append(goalText)
         textList.append(scoreText)
         textList.append(missText)
 
-        draw_screen(rectList,textList,scoreController)
+        draw_screen(rectList,textList,scoreController,hammer)
+
+
 
     if winFlag:
         main()
