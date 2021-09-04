@@ -1,3 +1,4 @@
+from objects.AnimatedZombie import AnimatedZombie
 from managers.MouseInput import MouseInput
 from objects.Hole import Hole
 import sys
@@ -70,8 +71,10 @@ class App:
         self._assets["logo"] = pygame.image.load("./assets/logo/logo.jpg")
         self._assets["hole"] = pygame.image.load("./assets/objects/hole.png")
         self._assets["hole"] = pygame.transform.scale(self._assets["hole"], (212, 152))
-        self._assets["zombie"] = pygame.image.load("./assets/objects/zombie.png")
-        self._assets["zombie"] = pygame.transform.scale(self._assets["zombie"], (54, 101))
+        # self._assets["zombie"] = pygame.image.load("./assets/objects/zombie.png")
+        # self._assets["zombie"] = pygame.transform.scale(self._assets["zombie"], (54, 101))
+        self._assets["zombie"] = pygame.image.load("./assets/sprites/ZombieHead.png")
+        self._assets["zombieDead"] = pygame.image.load("./assets/sprites/ZombieDead.png")
 
     def _create(self):
         self.FONT = pygame.font.SysFont("arial",15)
@@ -83,7 +86,8 @@ class App:
         pygame.display.set_caption("Zombie Shooter")
 
         self._holeList.append(Hole(self, 0, 100, self._assets["hole"], 212, 152))
-        self._zombieList.append(Zombie(self, 60, 110, self._assets['zombie'], 54, 101))
+        # self._zombieList.append(Zombie(self, 60, 110, self._assets['zombie'], 54, 101))
+        self._zombieList.append(AnimatedZombie(self, 60, 110, [self._assets['zombie'], self._assets['zombieDead']], 54, 101))
 
     def _handleEvent(self, event):
         if event.type == pygame.QUIT:
@@ -105,6 +109,8 @@ class App:
         # handle input
         if not self.isHit and MouseInput.isClick():
             pygame.event.post(pygame.event.Event(INCREASEMISSSCORE))
+            pygame.mixer.music.load("./assets/sounds/swing.ogg")
+            pygame.mixer.music.play()
 
         # reset global variable
         self.isHit = False
