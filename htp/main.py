@@ -108,15 +108,15 @@ class App:
 
         self._holeList.append(Hole(self, 300, 100, self._assets["topHole"], 212, 152))
         self._botHoleList.append(Hole(self, 300, 100, self._assets["botHole"], 212, 151))
-        self._zombieList.append(AnimatedZombie(self, 360, 130, [self._assets['zombie'], self._assets['zombieDead']], 54, 101, self._botHoleList[0].getTopLeftPos()))
+        self._zombieList.append(AnimatedZombie(self, 360, 130, [self._assets['zombie'], self._assets['zombieDead']], 54, 101, self._botHoleList[1].getTopLeftPos()))
 
         self._holeList.append(Hole(self, 0, 400, self._assets["topHole"], 212, 152))
         self._botHoleList.append(Hole(self, 0, 400, self._assets["botHole"], 212, 151))
-        self._zombieList.append(AnimatedZombie(self, 60, 430, [self._assets['zombie'], self._assets['zombieDead']], 54, 101, self._botHoleList[0].getTopLeftPos()))
+        self._zombieList.append(AnimatedZombie(self, 60, 430, [self._assets['zombie'], self._assets['zombieDead']], 54, 101, self._botHoleList[2].getTopLeftPos()))
 
         self._holeList.append(Hole(self, 300, 400, self._assets["topHole"], 212, 152))
         self._botHoleList.append(Hole(self, 300, 400, self._assets["botHole"], 212, 151))
-        self._zombieList.append(AnimatedZombie(self, 360, 430, [self._assets['zombie'], self._assets['zombieDead']], 54, 101, self._botHoleList[0].getTopLeftPos()))
+        self._zombieList.append(AnimatedZombie(self, 360, 430, [self._assets['zombie'], self._assets['zombieDead']], 54, 101, self._botHoleList[3].getTopLeftPos()))
 
         # background sound
         pygame.mixer.music.play(-1)

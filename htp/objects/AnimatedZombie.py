@@ -95,6 +95,7 @@ class AnimatedZombie(Image):
         self._updateAnimation(delta)
 
     def _isInImage(self, mouseXPos, mouseYPos):
+        print(mouseXPos, self._x, self._x + self._width, mouseYPos, self._y, self._holdImagePos[1] + HOLEOFFSET)
         if (
             (mouseXPos >= self._x)
         and (mouseXPos <= self._x + self._width)
