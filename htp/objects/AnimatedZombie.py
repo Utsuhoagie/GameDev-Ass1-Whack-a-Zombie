@@ -81,9 +81,11 @@ class AnimatedZombie(Image):
                 mY = pygame.mouse.get_pos()[1]
                 if self._isInImage(mX, mY):
                     self._screen.sounds['bonk'].play()
-            self._screen.isHit = True
+                    self._screen.isHit = True
+            
         elif self.state == State.DIED:
-            # random new position
+            # revive
+            self._timer = random.randint(HIDEDTIME[0], HIDEDTIME[1])
             self.state = State.HIDED
 
             self._x = self._HIDEDX
