@@ -83,13 +83,17 @@ class Zombie(Image):
         if self.state == State.HIDED:
             return
         elif self.state == State.SHOWING:
-            self._screen.screen.blit(self._image, (self._x, self._y), (0, 0, self._width, 176 - self._y))
+            # self._screen.screen.blit(self._image, (self._x, self._y), (0, 0, self._width, 176 - self._y))
+            super().draw()
         elif self.state == State.SHOWED:
-            self._screen.screen.blit(self._image, (self._x, self._y), (0, 0, self._width, 176 - self._y))
+            # self._screen.screen.blit(self._image, (self._x, self._y), (0, 0, self._width, 176 - self._y))
+            super().draw()
         elif self.state == State.HIDEING:
-            self._screen.screen.blit(self._image, (self._x, self._y), (0, 0, self._width, 176 - self._y))
+            # self._screen.screen.blit(self._image, (self._x, self._y), (0, 0, self._width, 176 - self._y))
+            super().draw()
         elif self.state == State.DIEING:
-            self._screen.screen.blit(self._image, (self._x, self._y), (0, 0, self._width, 176 - self._y))
+            # self._screen.screen.blit(self._image, (self._x, self._y), (0, 0, self._width, 176 - self._y))
+            super().draw()
 
     # minus time and return minus time
     def _minusTime(self, delta):

@@ -22,3 +22,14 @@ WIN_CONDITION = 5
 INCREASESCORE = pygame.USEREVENT + 1
 INCREASEMISSSCORE = pygame.USEREVENT + 2
 HITAZOMBIE = pygame.USEREVENT + 3
+
+# Zombie
+SHOWEDTIME = (50, 400)
+ANIMATIONTIME = 100
+HIDEDTIME = (1000, 3000)
+DIEINGTIME = 2000
+DIEDTIME = (1000, 3000)
+
+# Hole properties
+# If hole at position (0, 0) => the center bottom y of hole will be (..., 180)
+HOLEOFFSET = 90 # have calculate the current hole image with the scale

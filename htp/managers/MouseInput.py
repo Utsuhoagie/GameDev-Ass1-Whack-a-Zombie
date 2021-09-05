@@ -16,10 +16,11 @@ class MouseInput:
         
     def isClick():
         return MouseInput._isClick
-    def isUp():
-        return not MouseInput._isDown
-    def isDown():
-        return MouseInput._isDown
+    # is Up and is Down is not usable, please use pygame.mouse instead
+    # def isUp():
+    #     return not MouseInput._isDown
+    # def isDown():
+    #     return MouseInput._isDown
 
     def update():
         MouseInput._isClick = False

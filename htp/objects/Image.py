@@ -25,3 +25,6 @@ class Image:
             ):
             return True
         return False
+
+    def getTopLeftPos(self):
+        return (self._x, self._y)
