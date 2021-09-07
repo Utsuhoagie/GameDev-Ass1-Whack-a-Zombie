@@ -8,7 +8,7 @@ class ScoreController:
         self.win = win
         self._font = font
 
-        self._scoreText = "Your score: 0"
+        self._scoreText = "You scored: 0"
         self._missText = "You missed: 0"
     
     def getScore(self) -> int:
@@ -36,7 +36,7 @@ class ScoreController:
         return self.score >= self.win
 
     def update(self):
-        self._scoreText = "Your score: " + str(self.score)
+        self._scoreText = "You scored: " + str(self.score)
         self._missText = "You missed: " + str(self.miss)
 
     def draw(self):
