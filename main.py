@@ -1,233 +1,192 @@
-import pygame as pg
-import os
-import random
-pg.init()
+from managers.MouseManager import MouseManager
+from objects.AnimatedZombie import AnimatedZombie
+from managers.MouseInput import MouseInput
+from objects.Hole import Hole
+from objects.Pow import Pow
+from objects.ParticleList import ParticleList
+import sys
+sys.path.append("/")
+import pygame
+from pygame.locals import *
+from managers.ScoreController import ScoreController
+# from objects.Zombie import Zombie
+from constants.constant import *
 
-# ----- Window --------------------------------------
-WIDTH, HEIGHT = 600,600
-SCREEN = pg.display.set_mode((WIDTH,HEIGHT))
-pg.display.set_caption("Clicky")
+class App:
+    def __init__(self, width = 640, height = 400):
+        self._clock = pygame.time.Clock()
+        self._running = True
+        self.screen = None
+        self.size = self.weight, self.height = width, height
+        self._assets = dict()
+        self.sounds = dict()
 
-# ----- Colors --------------------------------------
+        # manager
+        self._scoreManager = None
+        self._mouseManager = None
 
-BLACK = (0,0,0)
-GRAY = (100,100,100)
-WHITE = (255,255,255)
+        # game objects
+        self._background = None
+        self._holeList = []
+        self._botHoleList = []
+        self._zombieList = []
+        self._powList = []
+        self._particleList = ParticleList()
 
-RED = (255,0,0)
-GREEN = (0,255,0)
-BLUE = (0,0,255)
-YELLOW = (252,227,0)
+        # variables
+        self._scoreText = "Your score: 0"
+        self._missText = "You missed: 0"
 
-# ----- Sprites -------------------------------------
+        # flag
+        self._winFlag = False
+        self.isHit = False
 
-HAMMER_W, HAMMER_H = 32,32
-
-# ----- Sounds --------------------------------------
-
-SWING_SFX = pg.mixer.Sound(os.path.join("Assets/Sounds","swing.ogg"))
-HIT_SFX = pg.mixer.Sound(os.path.join("Assets/Sounds","bonk.ogg"))
-
-
-# ----- Fonts ---------------------------------------
-
-FONT = pg.font.SysFont("arial",15)
-WIN_FONT = pg.font.SysFont("comicsans",50)
-
-# ----- Gameplay ------------------------------------
-FPS = 60
-
-WIN_CONDITION = 5
-WIN = pg.USEREVENT + 1
+        self.FONT = None
+        self.WIN_FONT = None
 
 
+    def execute(self):
+        if self._init() == False:
+            self._running = False
+
+        # load assets
+        self._preload()
+        
+        # create object
+        self._create()
 
 
-# ----- Classes -------------------------------------
+        # event handling, gets all event from the event queue
+        while( self._running ):
+            delta = self._clock.tick(FPS)
+            # process the the event queue
+            for event in pygame.event.get():
+                self._handleEvent(event)
+            self._update(delta)
+            self._render()
+        self._on_cleanup()
 
-class Timer:
-    def __init__(self, time: int):
-        self.time = time
     
-    def decreaseBy(self,decr):
-        self.time -= decr
-    
-    def setTo(self, time: int):
-        self.time = time
+    def _init(self):
+        pygame.init()
+        self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
+        self._running = True
 
-    def getTime(self) -> int:
-        return self.time
-
-class Hammer:
-    def __init__(self, timer: Timer = None, position: tuple = None):
-        self.timer = timer
-        self.position = position
-
-    def setTimer(self, timer: Timer):
-        self.timer = timer
-
-    def setPos(self, position: tuple):
-        self.position = position
-
-    def getTimer(self) -> Timer:
-        return self.timer
-
-    def getPos(self) -> tuple:
-        return self.position
-    
+    # all used assets will be load here
+    def _preload(self):
+        # Fonts
 
 
-class ScoreController:
-    def __init__(self, score: int, win: int):
-        self.score = score
-        self.miss = 0
-        self.win = win
-    
-    def getScore(self) -> int:
-        return self.score
+        # Images
+        self._assets["logo"] = pygame.image.load("./assets/logo/logo.jpg")
+        # self._assets["hole"] = pygame.image.load("./assets/objects/hole.png")
+        # self._assets["hole"] = pygame.transform.scale(self._assets["hole"], (212, 152))
+        self._assets["topHole"] = pygame.image.load("./assets/objects/top_hole.png")
+        self._assets["topHole"] = pygame.transform.scale(self._assets["topHole"], (212, 152))
+        self._assets["botHole"] = pygame.image.load("./assets/objects/bot_hole.png")
+        self._assets["botHole"] = pygame.transform.scale(self._assets["botHole"], (212, 152))
+        # self._assets["zombie"] = pygame.image.load("./assets/objects/zombie.png")
+        # self._assets["zombie"] = pygame.transform.scale(self._assets["zombie"], (54, 101))
+        self._assets["zombie"] = pygame.image.load("./assets/sprites/ZombieHead.png")
+        self._assets["zombieDead"] = pygame.image.load("./assets/sprites/ZombieDead.png")
+        self._assets["bonkHammer"] = pygame.image.load("./assets/sprites/hammer.png")
+        self._assets["readyHammer"] = pygame.transform.rotate(self._assets["bonkHammer"], -30)
+        self._assets["pow"] = pygame.image.load("./assets/sprites/Pow.png")
+        self._assets["particle"] = pygame.image.load("./assets/sprites/Particle.png")
 
-    def getMiss(self) -> int:
-        return self.miss
+        # Sounds
+        self.sounds['bonk'] = pygame.mixer.Sound("./assets/sounds/bonk.ogg")
+        self.sounds['swing'] = pygame.mixer.Sound("./assets/sounds/swing.ogg")
 
-    def toString(self, type: str) -> str:
-        if type == "score":
-            return str(self.score)
-        elif type == "miss":
-            return str(self.miss)
+        # background sound
+        pygame.mixer.music.load("./assets/sounds/PvZSoundtrack.mp3")
 
-    def setScore(self, score: int):
-        self.score = score
+    def _create(self):
+        self.FONT = pygame.font.SysFont("arial",15)
+        self.WIN_FONT = pygame.font.SysFont("comicsans",50)
 
-    def incrScore(self):
-        self.score += 1
+        self._scoreManager = ScoreController(self,0, WIN_CONDITION, self.FONT)
+        self._mouseManager = MouseManager(self, 20, -100, [self._assets['readyHammer'], self._assets['bonkHammer']], 90, 59)
 
-    def incrMiss(self):
-        self.miss += 1
+        pygame.display.set_icon(self._assets["logo"])
+        pygame.display.set_caption("Whack-a-Zombie")
 
-    def isWon(self) -> bool:
-        return self.score >= self.win
+        self._holeList.append(Hole(self, 0, 100, self._assets["topHole"], 212, 152))
+        self._botHoleList.append(Hole(self, 0, 100, self._assets["botHole"], 212, 151))
+        self._zombieList.append(AnimatedZombie(self, 60, 130, [self._assets['zombie'], self._assets['zombieDead']], 54, 101, self._botHoleList[0].getTopLeftPos()))
 
+        self._holeList.append(Hole(self, 300, 100, self._assets["topHole"], 212, 152))
+        self._botHoleList.append(Hole(self, 300, 100, self._assets["botHole"], 212, 151))
+        self._zombieList.append(AnimatedZombie(self, 360, 130, [self._assets['zombie'], self._assets['zombieDead']], 54, 101, self._botHoleList[1].getTopLeftPos()))
 
-# ----- Functions -----------------------------------
+        self._holeList.append(Hole(self, 0, 400, self._assets["topHole"], 212, 152))
+        self._botHoleList.append(Hole(self, 0, 400, self._assets["botHole"], 212, 151))
+        self._zombieList.append(AnimatedZombie(self, 60, 430, [self._assets['zombie'], self._assets['zombieDead']], 54, 101, self._botHoleList[2].getTopLeftPos()))
 
-# ---------- Handlers -------------
+        self._holeList.append(Hole(self, 300, 400, self._assets["topHole"], 212, 152))
+        self._botHoleList.append(Hole(self, 300, 400, self._assets["botHole"], 212, 151))
+        self._zombieList.append(AnimatedZombie(self, 360, 430, [self._assets['zombie'], self._assets['zombieDead']], 54, 101, self._botHoleList[3].getTopLeftPos()))
 
-# ---------- Draw -----------------
+        # background sound
+        pygame.mixer.music.play(-1)
 
-def draw_screen(rectList, textList, scoreController: ScoreController, hammer: Hammer):
-    # draw background
-    SCREEN.fill(BLACK)
+    def _handleEvent(self, event):
+        if event.type == pygame.QUIT:
+            self._running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            MouseInput.setDown()
+        elif event.type == pygame.MOUSEBUTTONUP:
+            MouseInput.setUp()
+        elif event.type == INCREASESCORE:
+            self._scoreManager.incrScore()
+            self._powList.append(Pow(self,pygame.mouse.get_pos()[0] - 90/2,pygame.mouse.get_pos()[1] - 80/2, self._assets["pow"],90,80))
+            self._particleList.addParticle(self,pygame.mouse.get_pos()[0] - 30,pygame.mouse.get_pos()[1], self._assets["particle"],90,80)
 
-    # draw objects to click on
-    [pg.draw.rect(SCREEN,GREEN,rect) for rect in rectList]  # 
+        elif event.type == INCREASEMISSSCORE:
+            self._scoreManager.incrMiss()
+    def _update(self, delta):
+        self._scoreManager.update()
+        self._mouseManager.update()
 
-    # spacing between lines of text
-    text_y_displace = 0
+        [hole.update(delta) for hole in self._holeList]
+        [zombie.update(delta) for zombie in self._zombieList]
+        [hole.update(delta) for hole in self._botHoleList]
+        [pow.update(delta) for pow in self._powList]
 
-    # draw text
-    for text in textList:
-        str = FONT.render(text,1,WHITE)     # this is a surface
-        SCREEN.blit(str,(WIDTH//2 - str.get_width()//2, 15 + text_y_displace))
-        text_y_displace += 30
+        self._particleList.update(delta)
 
-    # clear list of text
-    textList.clear()
+        # handle input
+        if not self.isHit and MouseInput.isClick():
+            pygame.event.post(pygame.event.Event(INCREASEMISSSCORE))
+            self.sounds['swing'].play()
 
-    # draw hammer if clicked, automatically disappears after 20 frames
-    if hammer.getTimer() != None and hammer.getTimer().getTime() != 0:
-        hammerRect = pg.Rect(hammer.getPos()[0] - HAMMER_W//2, hammer.getPos()[1] - HAMMER_H//2, 
-                            HAMMER_W, HAMMER_H)
-        pg.draw.rect(SCREEN,YELLOW,hammerRect)
-        hammer.getTimer().decreaseBy(1)
+        # reset global variable
+        self.isHit = False
 
-    # WIN event
-    if scoreController.isWon():
-        pg.event.post(pg.event.Event(WIN))
+        # for system
+        MouseInput.update()
+        
+    def _render(self):
+        # erase the screen
+        self.screen.fill(BLACK)
 
-    # update display
-    pg.display.update()
+        self._background = self.screen.fill((255,255,255))
 
+        self._scoreManager.draw()
 
-def draw_winText():
-    str = WIN_FONT.render("You win!",1,RED)
-    SCREEN.blit(str,(WIDTH//2 - str.get_width()//2, 150))
+        [hole.draw() for hole in self._holeList]
+        [zombie.draw() for zombie in self._zombieList]
+        [hole.draw() for hole in self._botHoleList]
+        [pow.draw() for pow in self._powList]
+        
+        self._particleList.draw()
 
-    pg.display.update()
-
-# ----- Main ----------------------------------------
-
-def main():
-    pg.event.clear()    # clear events from last game
-
-    run = True
-    clock = pg.time.Clock()
-
-    hammer = Hammer()
-
-    rectList = []
-    textList = []
-    
-    scoreController = ScoreController(0,WIN_CONDITION)
-    winFlag = False
-
-    rect = pg.Rect(50,50,100,100)
-    rectList.append(rect)
-
-    goalText = "Goal: " + str(WIN_CONDITION)
-    scoreText = "Your score: 0"
-    missText = "You missed: 0"
-
-    while run:
-        clock.tick(FPS)
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                run = False
-                break
-            if event.type == pg.MOUSEBUTTONDOWN and winFlag == False:
-                # set timer and position of hammer to draw
-                hammer.setTimer(Timer(20))
-                hammer.setPos(pg.mouse.get_pos())   # this is CENTER of hammer
-
-                # play swing SFX
-                SWING_SFX.play()
-
-                # check if hit or miss
-                if (
-                    (pg.mouse.get_pos()[0] >= rect.x)
-                and (pg.mouse.get_pos()[0] <= rect.x + rect.width)
-                and (pg.mouse.get_pos()[1] >= rect.y)
-                and (pg.mouse.get_pos()[1] <= rect.y + rect.width)
-                    ):
-                    HIT_SFX.play()
-                    scoreController.incrScore()
-                    scoreText = "Your score: " + scoreController.toString("score")
-                else:
-                    scoreController.incrMiss()
-                    missText = "You missed: " + scoreController.toString("miss")
-
-            if event.type == WIN:
-                run = False
-                winFlag = True
-                break
-
-        if winFlag:
-            draw_winText()
-            pg.time.delay(2000)     # wait 2s
-            break
-
-        textList.append(goalText)
-        textList.append(scoreText)
-        textList.append(missText)
-
-        draw_screen(rectList,textList,scoreController,hammer)
-
-
-
-    if winFlag:
-        main()
-    else:
-        pg.quit()
-
-
-if __name__ == '__main__':
-    main()
+        self._mouseManager.draw()
+        # reload the screen
+        pygame.display.flip()
+    def _on_cleanup(self):
+        pygame.quit()
+ 
+if __name__ == "__main__" :
+    theApp = App(WIDTH, HEIGHT)
+    theApp.execute()

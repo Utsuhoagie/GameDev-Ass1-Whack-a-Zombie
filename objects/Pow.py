@@ -4,7 +4,7 @@ from constants.constant import *
 class Pow(Image):
     def __init__(self, screen, x, y, image, width, height):
         super().__init__(screen, x, y, image, width, height)
-        self._timer = DIEINGTIME
+        self._timer = POWTIME
     
     def update(self, delta):
         self._minusTime(delta)

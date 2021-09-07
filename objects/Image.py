@@ -10,8 +10,12 @@ class Image:
         self._x = x
         self._y = y
 
-    def update(self, delta):
+    def update(self,delta):
         pass
+
+    def updatePos(self, x, y):
+        self._x = x
+        self._y = y
 
     def draw(self):
         self._screen.screen.blit(self._image, (self._x, self._y))

@@ -24,14 +24,18 @@ INCREASEMISSSCORE = pygame.USEREVENT + 2
 HITAZOMBIE = pygame.USEREVENT + 3
 
 # Zombie
-SHOWEDTIME = (50, 400)
-ANIMATIONTIME = 100
+SHOWEDTIME = (100, 600)
+ANIMATIONTIME = 150
 HIDEDTIME = (1000, 3000)
 DIEINGTIME = 2000
 DIEDTIME = (1000, 3000)
 
 # Pow effect
-# POWTIME = 1000
+POWTIME = 200
+
+# Star particle
+STARDIRECTION = (-2,1)
+STARTIME = 300
 
 # Hole properties
 # If hole at position (0, 0) => the center bottom y of hole will be (..., 180)
