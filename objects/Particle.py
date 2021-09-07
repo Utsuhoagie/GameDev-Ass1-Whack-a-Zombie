@@ -40,3 +40,8 @@ class Particle(Image):
             minusTime = self._timer
             self._timer = 0
             return minusTime
+
+    def isSafeToDelete(self):
+        if self._timer == 0:
+            return True
+        return False

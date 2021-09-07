@@ -154,6 +154,9 @@ class App:
         [hole.update(delta) for hole in self._botHoleList]
         [pow.update(delta) for pow in self._powList]
 
+        # delete object
+        self._powList[:] = [x for x in self._powList if not x.isSafeToDelete()]
+
         self._particleList.update(delta)
 
         # handle input
