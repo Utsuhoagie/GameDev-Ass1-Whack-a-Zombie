@@ -17,6 +17,10 @@ class Image:
         self._x = x
         self._y = y
 
+    def updateImageAndDims(self, image, dims):
+        self._image = image
+        self._width, self._height = dims[0], dims[1]
+
     def draw(self):
         self._screen.screen.blit(self._image, (self._x, self._y))
 
@@ -32,3 +36,9 @@ class Image:
 
     def getTopLeftPos(self):
         return (self._x, self._y)
+
+    def getImage(self):
+        return self._image
+
+    def getDims(self) -> tuple:
+        return (self._width, self._height)

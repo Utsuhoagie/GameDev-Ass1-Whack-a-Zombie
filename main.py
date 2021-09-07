@@ -78,6 +78,7 @@ class App:
 
 
         # Images
+        self._assets["bg"] = pygame.image.load("./assets/Background.jpg")
         self._assets["logo"] = pygame.image.load("./assets/logo/logo.jpg")
         # self._assets["hole"] = pygame.image.load("./assets/objects/hole.png")
         # self._assets["hole"] = pygame.transform.scale(self._assets["hole"], (212, 152))
@@ -140,7 +141,7 @@ class App:
         elif event.type == INCREASESCORE:
             self._scoreManager.incrScore()
             self._powList.append(Pow(self,pygame.mouse.get_pos()[0] - 90/2,pygame.mouse.get_pos()[1] - 80/2, self._assets["pow"],90,80))
-            self._particleList.addParticle(self,pygame.mouse.get_pos()[0] - 30,pygame.mouse.get_pos()[1], self._assets["particle"],90,80)
+            self._particleList.addParticle(self,pygame.mouse.get_pos()[0] - 40,pygame.mouse.get_pos()[1] - 10, self._assets["particle"],90,80)
 
         elif event.type == INCREASEMISSSCORE:
             self._scoreManager.incrMiss()
@@ -172,6 +173,7 @@ class App:
 
         self._background = self.screen.fill((255,255,255))
 
+        self.screen.blit(self._assets["bg"],(0,0))
         self._scoreManager.draw()
 
         [hole.draw() for hole in self._holeList]

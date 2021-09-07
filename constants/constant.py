@@ -12,6 +12,8 @@ RED = (255,0,0)
 GREEN = (0,255,0)
 BLUE = (0,0,255)
 YELLOW = (252,227,0)
+BROWN = (115,67,38)
+LIGHTGREEN = (102,199,28)
 
 # ----- Gameplay ------------------------------------
 FPS = 60
@@ -27,7 +29,7 @@ HITAZOMBIE = pygame.USEREVENT + 3
 SHOWEDTIME = (100, 600)
 ANIMATIONTIME = 150
 HIDEDTIME = (1000, 3000)
-DIEINGTIME = 2000
+DIEINGTIME = 1000
 DIEDTIME = (1000, 3000)
 
 # Pow effect
