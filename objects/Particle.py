@@ -4,6 +4,8 @@ from constants.constant import *
 class Particle(Image):
     def __init__(self, screen, x, y, image, width, height):
         super().__init__(screen, x, y, image, width, height)
+        self._width, self._height = width, height
+        self._widthOrig, self._heightOrig = width, height
         self._timer = STARTIME
     
     def update(self,delta):
@@ -12,6 +14,14 @@ class Particle(Image):
         # update position
         currentPos = super().getTopLeftPos()
         super().updatePos(currentPos[0] + STARDIRECTION[0], currentPos[1] + STARDIRECTION[1])
+        
+        
+        """self._width -= int(0.1*self._width)
+        self._height -= int(0.1*self._height)
+
+        #newImageDims = (int(super().getDims()[0] - 0.1*self._widthOrig), int(super().getDims()[1] - 0.1*self._heightOrig))
+        newImage = pygame.transform.scale(super().getImage(),(self._width, self._height))
+        super().updateImageAndDims(newImage, (self._width, self._height))"""
 
         # draw particle
         # self.draw()

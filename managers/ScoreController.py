@@ -40,10 +40,13 @@ class ScoreController:
         self._missText = "You missed: " + str(self.miss)
 
     def draw(self):
-        str = self._font.render(self._scoreText, 1, BLACK)
 
-        self._screen.screen.blit(str, (WIDTH//2 - str.get_width()//2, 30))
+        strScore = self._font.render(self._scoreText, 1, LIGHTGREEN)
 
-        str = self._font.render(self._missText, 1, BLACK)
+        strMiss = self._font.render(self._missText, 1, LIGHTGREEN)
 
-        self._screen.screen.blit(str, (WIDTH//2 - str.get_width()//2, 70))
+        pygame.draw.rect(self._screen.screen, BROWN, pygame.Rect(240,15,120,60))
+
+        self._screen.screen.blit(strScore, (WIDTH//2 - strScore.get_width()//2, 20))
+
+        self._screen.screen.blit(strMiss, (WIDTH//2 - strMiss.get_width()//2, 50))
